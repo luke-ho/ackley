@@ -1,7 +1,7 @@
 ackley
 ======
 
-A Slack bot framework. 
+A Slack bot framework. Documentation is located at: https://luke-ho.github.io/ackley/
 
 License
 ==========
