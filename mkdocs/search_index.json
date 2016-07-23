@@ -1,0 +1,59 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Ackley\n\n\nA chatbot framework for \nSlack\n. \n\n\nGetting Started\n\n\n\n\n\n\nHave a go environment installed. For more details, see \nGo installation site\n\n\n\n\n\n\nCreate a bot integration with your team.\n\n\n\n\nBot Users\n\n\nBots: New Configuration\n\n\n\n\n\n\n\n\nExport environment variables (see \nconfig.sh\n):\n\n\n\n\nACKLEY_SLACK_API_TOKEN\n\n\nACKLEY_BOTNAME\n\n\nACKLEY_BOTID\n (\nbot_user_id\n field from \nRetrieving your bot user token\n)\n\n\nACKLEY_WEBSOCKET_ORIGIN\n (domain name origin (ex. \nhttp://localhost\n))\n\n\n\n\nIn the \nackley\n subdirectory run \n\n\ngo get ./...\ngo build\n\n\n\nOn successful build, this will produce an \nackley\n binary. Run the binary:\n\n\n./ackley\n\n\n\nUsing the framework\n\n\nSee the provided example \nackley/main.go\n on how to get started with the framework. \n\n\n1. Populate AckleyInit structure fields:\n\n\n\n\nSlack_os_auth_token\n                 \nstring\n\n\n(required) Authorization token for slack\n\n\n\n\n\n\nSlack_botname\n                       \nstring\n\n\n(required) The name of the bot in slack\n\n\n\n\n\n\nSlack_botid\n                         \nstring\n\n\n(required) The name of the bot id (for recognizing mentions)\n\n\n\n\n\n\nMessage_response_handler\n            \nMessageResponseHandler\n\n\n(required) Callback function that ackley use to respond to a message it receives. Add application logic here.\n\n\nfunction definition \nfunc(*SlackMessageInfo) ([]byte, error)\n where the byte slice is response in JSON bytes\n\n\n\n\n\n\nStart_web_server\n                    \nbool\n\n\n(required) Starts a debug web server for accessing information collected slack info\n\n\n\n\n\n\nWeb_server_address\n                  \nstring\n\n\n(required) The address the web server listens on\n\n\n\n\n\n\nMessage_retransmission_enabled\n      \nbool\n\n\n(required) Retransmit messages on send failure up to a max duration (in seconds)\n\n\n\n\n\n\nMessage_retransmission_factor\n       \nint\n\n\n(required) How much time (in seconds) is increased per retransmission. It is increased exponentially by this factor. \n\n\n\n\n\n\nMessage_retransmission_max_duration\n \nint\n\n\n(required) Maximum duration time before message is thrown out\n\n\n\n\n\n\nInterrupt_channel_resp\n              \nchan bool\n\n\n(required) Channel that ackley will send a response to if an interrupt is triggered in ackley\n\n\n\n\n\n\nTest_mode\n                           \nbool\n\n\n(required) Boolean flag used during unit testing\n\n\n\n\n\n\n\n\n2. Application logic init\n\n\n3. Create a new Ackley struct\n\n\n4. Call Init() on Ackley struct passing in pointer to filled AckleyInit struct\n\n\nack.Init(ack_init)\n\n\n\n5. Listen for interrupts from ackley\n\n\n6. Call Start() on Ackley struct\n\n\nack.Start()\n\n\n\nLicense\n\n\nThis project is released under the Apache License v2. See LICENSE for more details.", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#ackley", 
+            "text": "A chatbot framework for  Slack .", 
+            "title": "Ackley"
+        }, 
+        {
+            "location": "/#getting-started", 
+            "text": "Have a go environment installed. For more details, see  Go installation site    Create a bot integration with your team.   Bot Users  Bots: New Configuration     Export environment variables (see  config.sh ):   ACKLEY_SLACK_API_TOKEN  ACKLEY_BOTNAME  ACKLEY_BOTID  ( bot_user_id  field from  Retrieving your bot user token )  ACKLEY_WEBSOCKET_ORIGIN  (domain name origin (ex.  http://localhost ))   In the  ackley  subdirectory run   go get ./...\ngo build  On successful build, this will produce an  ackley  binary. Run the binary:  ./ackley", 
+            "title": "Getting Started"
+        }, 
+        {
+            "location": "/#using-the-framework", 
+            "text": "See the provided example  ackley/main.go  on how to get started with the framework.", 
+            "title": "Using the framework"
+        }, 
+        {
+            "location": "/#1-populate-ackleyinit-structure-fields", 
+            "text": "Slack_os_auth_token                   string  (required) Authorization token for slack    Slack_botname                         string  (required) The name of the bot in slack    Slack_botid                           string  (required) The name of the bot id (for recognizing mentions)    Message_response_handler              MessageResponseHandler  (required) Callback function that ackley use to respond to a message it receives. Add application logic here.  function definition  func(*SlackMessageInfo) ([]byte, error)  where the byte slice is response in JSON bytes    Start_web_server                      bool  (required) Starts a debug web server for accessing information collected slack info    Web_server_address                    string  (required) The address the web server listens on    Message_retransmission_enabled        bool  (required) Retransmit messages on send failure up to a max duration (in seconds)    Message_retransmission_factor         int  (required) How much time (in seconds) is increased per retransmission. It is increased exponentially by this factor.     Message_retransmission_max_duration   int  (required) Maximum duration time before message is thrown out    Interrupt_channel_resp                chan bool  (required) Channel that ackley will send a response to if an interrupt is triggered in ackley    Test_mode                             bool  (required) Boolean flag used during unit testing", 
+            "title": "1. Populate AckleyInit structure fields:"
+        }, 
+        {
+            "location": "/#2-application-logic-init", 
+            "text": "", 
+            "title": "2. Application logic init"
+        }, 
+        {
+            "location": "/#3-create-a-new-ackley-struct", 
+            "text": "", 
+            "title": "3. Create a new Ackley struct"
+        }, 
+        {
+            "location": "/#4-call-init-on-ackley-struct-passing-in-pointer-to-filled-ackleyinit-struct", 
+            "text": "ack.Init(ack_init)", 
+            "title": "4. Call Init() on Ackley struct passing in pointer to filled AckleyInit struct"
+        }, 
+        {
+            "location": "/#5-listen-for-interrupts-from-ackley", 
+            "text": "", 
+            "title": "5. Listen for interrupts from ackley"
+        }, 
+        {
+            "location": "/#6-call-start-on-ackley-struct", 
+            "text": "ack.Start()", 
+            "title": "6. Call Start() on Ackley struct"
+        }, 
+        {
+            "location": "/#license", 
+            "text": "This project is released under the Apache License v2. See LICENSE for more details.", 
+            "title": "License"
+        }
+    ]
+}
