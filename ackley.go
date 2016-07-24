@@ -23,7 +23,7 @@ import (
 )
 
 func (ackley *Ackley) Init(ai *AckleyInit) {
-	ackley.slack_os_auth_token = ai.Slack_os_auth_token
+	ackley.slack_auth_token = ai.Slack_auth_token
 	ackley.slack_botname = ai.Slack_botname
 	ackley.slack_botid = ai.Slack_botid
 	ackley.web_server_address = ai.Web_server_address

@@ -27,7 +27,7 @@ import (
 
 func (ackley *Ackley) update_bot_presence() {
 	// Update the presence of the bot itself
-	presence_url := fmt.Sprintf("https://slack.com/api/users.setPresence?%v=%v&%v=%v", "token", ackley.slack_os_auth_token, "presence", "auto")
+	presence_url := fmt.Sprintf("https://slack.com/api/users.setPresence?%v=%v&%v=%v", "token", ackley.slack_auth_token, "presence", "auto")
 	resp, err := http.Get(presence_url)
 	if err != nil {
 		glog.Errorf("Error while trying to set presence:%v\n", err)

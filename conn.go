@@ -217,7 +217,7 @@ func (ackley *Ackley) read_from_slack_websocket() {
 }
 func (ackley *Ackley) establish_connection() {
 	// Issue a POST request to slack rtm
-	rtm_start_post_values := fmt.Sprintf("%s=%s", "token", ackley.slack_os_auth_token)
+	rtm_start_post_values := fmt.Sprintf("%s=%s", "token", ackley.slack_auth_token)
 	resp, err := http.Post("https://slack.com/api/rtm.start", "application/x-www-form-urlencoded", bytes.NewReader([]byte(rtm_start_post_values)))
 	if err != nil {
 		glog.Errorf("Error while trying to get rtm start:%v\n", err)

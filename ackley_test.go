@@ -53,7 +53,8 @@ func Test1Retransmission(t *testing.T) {
 		}
 
 		text_response := "This is a retransmission test. Please ignore"
-		slack_message_response := &SlackMessage{Type: "message", Channel: slack_response_channel, User: ackley_user_id, Text: text_response, Ts: string(time.Now().UTC().Unix())}
+		current_ts := float64(time.Now().UTC().Unix())
+		slack_message_response := &SlackMessage{Type: "message", Channel: slack_response_channel, User: ackley_user_id, Text: text_response, Ts: &current_ts}
 		slack_message_response_bytes, err := json.Marshal(slack_message_response)
 		if err != nil {
 			t.Error("Error while trying to marshal json for slack message response:%v\n", err)
@@ -178,8 +179,8 @@ func testInit() {
 	flag.StringVar(&slack_retransmission_response_channel, "slack_retransmission_response_channel", DEFAULT_SLACK_RESPONSE_CHANNEL, "Channel ackley will respond to on slack for retransmission test")
 	flag.Parse()
 
-	ack_init.Slack_os_auth_token = os.Getenv("ACKLEY_SLACK_API_TOKEN")
-	if len(ack_init.Slack_os_auth_token) < 1 {
+	ack_init.Slack_auth_token = os.Getenv("ACKLEY_SLACK_API_TOKEN")
+	if len(ack_init.Slack_auth_token) < 1 {
 		glog.Errorf("Error: please set the ACKLEY_SLACK_API_TOKEN environment variable\n")
 		os.Exit(1)
 	}

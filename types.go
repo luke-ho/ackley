@@ -33,7 +33,7 @@ const (
 )
 
 type Ackley struct {
-	slack_os_auth_token    string
+	slack_auth_token       string
 	slack_botname          string
 	slack_botid            string
 	slack_web_socket       *websocket.Conn
@@ -83,7 +83,7 @@ type Ackley struct {
 }
 
 type AckleyInit struct {
-	Slack_os_auth_token                 string
+	Slack_auth_token                    string
 	Slack_botname                       string
 	Slack_botid                         string
 	Websocket_origin                    string

@@ -48,8 +48,8 @@ func init() {
 	flag.IntVar(&ack_init.Message_retransmission_max_duration, "message_retransmission_max_duration", ackley.DEFAULT_RETRANS_MAX_DURATION, "Maximum duration for retransmission before message is discarded")
 	flag.Parse()
 
-	ack_init.Slack_os_auth_token = os.Getenv("ACKLEY_SLACK_API_TOKEN")
-	if len(ack_init.Slack_os_auth_token) < 1 {
+	ack_init.Slack_auth_token = os.Getenv("ACKLEY_SLACK_API_TOKEN")
+	if len(ack_init.Slack_auth_token) < 1 {
 		glog.Errorf("Error: please set the ACKLEY_SLACK_API_TOKEN environment variable\n")
 		os.Exit(1)
 	}
