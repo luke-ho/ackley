@@ -118,6 +118,7 @@ type AckleySlackRetransmission struct {
 }
 
 type SlackMessageInfo struct {
-	User *SlackUser
-	Msg  *SlackMessage
+	User        *SlackUser
+	UserMessage string
+	Msg         *SlackMessage
 }

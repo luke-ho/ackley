@@ -128,7 +128,7 @@ func (ackley *Ackley) process_slack_message() {
 				ackley.send_typing_event(slack_response_channel)
 				current_ts := float64(time.Now().UTC().Unix())
 				slack_message_response := &SlackMessage{Type: "message", Channel: slack_response_channel, User: ackley_user_id, Ts: &current_ts}
-				slack_message_info := &SlackMessageInfo{User: user, Msg: slack_message_response}
+				slack_message_info := &SlackMessageInfo{User: user, UserMessage: message_text, Msg: slack_message_response}
 				var err error
 				var slack_message_response_bytes []byte
 				if ackley.message_response_handler != nil {
