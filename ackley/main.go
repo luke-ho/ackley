@@ -83,7 +83,7 @@ func init() {
 }
 
 func QuoteResponseHandler(info *ackley.SlackMessageInfo) ([]byte, error) {
-	text_response := fmt.Sprintf("Hi, %v!\n", info.User)
+	text_response := fmt.Sprintf("Hi, %v!\n", info.User.Name)
 
 	iqr := InspirationalQuotesRequest{Type: "GET", Val: ""}
 	inspirational_quotes_req_channel <- iqr

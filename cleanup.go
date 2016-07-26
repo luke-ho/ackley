@@ -42,9 +42,6 @@ func (ackley *Ackley) flap_connection() {
 		// Start flapping the connection
 		ackley.slack_flapping_connection = true
 		// Notify all return channels
-		ackley.process_slack_event_classification_return_channel <- true
-		ackley.process_slack_message_return_channel <- true
-		ackley.process_slack_pong_return_channel <- true
 		ackley.process_slack_pong_misses_return_channel <- true
 		ackley.read_from_slack_websocket_return_channel <- true
 		ackley.ping_slack_websocket_return_channel <- true
@@ -78,15 +75,6 @@ func (ackley *Ackley) process_flap_connections() {
 			ackley.cleanup()
 
 			// Empty the return channels
-			for i := 0; i < len(ackley.process_slack_event_classification_return_channel); {
-				<-ackley.process_slack_event_classification_return_channel
-			}
-			for i := 0; i < len(ackley.process_slack_message_return_channel); {
-				<-ackley.process_slack_message_return_channel
-			}
-			for i := 0; i < len(ackley.process_slack_pong_return_channel); {
-				<-ackley.process_slack_pong_return_channel
-			}
 			for i := 0; i < len(ackley.process_slack_pong_misses_return_channel); {
 				<-ackley.process_slack_pong_misses_return_channel
 			}

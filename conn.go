@@ -38,7 +38,7 @@ func (ackley *Ackley) process_slack_event_classification() {
 			if ok == false {
 				glog.Errorf("Error while trying to retrieve slack message type:%v\n", ok)
 				ackley.flap_connection()
-				return
+				continue
 			}
 			switch slack_message_type {
 			case "message":
@@ -89,13 +89,13 @@ func (ackley *Ackley) process_slack_message() {
 			if ok == false {
 				glog.Errorf("Error: Unable to get text from slack event\n")
 				ackley.flap_connection()
-				return
+				continue
 			}
 			slack_response_channel, ok := slack_event["channel"].(string)
 			if ok == false {
 				glog.Errorf("Error: Unable to respond to channel who sent message:\n")
 				ackley.flap_connection()
-				return
+				continue
 			}
 			if ackley.ackley_regexp.MatchString(message_text) == false {
 				// Check the channel to see if it's a direct message
@@ -109,7 +109,7 @@ func (ackley *Ackley) process_slack_message() {
 			if ok == false {
 				glog.Errorf("Error: Unable to respond to user who sent message:\n")
 				ackley.flap_connection()
-				return
+				continue
 			}
 			if responder_user_id == ackley.slack_botid {
 				glog.Info("Not responding to myself\n")
@@ -154,7 +154,7 @@ func (ackley *Ackley) process_slack_message() {
 					if ackley.message_retransmission_enabled == true {
 						glog.Infof("Begin retransmission...\n")
 						go func() {
-							ackley.message_retransmission_channel <- AckleySlackRetransmission{Retrans_time: 1, Message: slack_message_response_bytes}
+							ackley.message_retransmission_channel <- AckleySlackRetransmission{Retrans_time: ackley.message_retransmission_factor, Message: slack_message_response_bytes}
 						}()
 					}
 				}
@@ -260,15 +260,10 @@ func (ackley *Ackley) establish_connection() {
 	// Get connection url
 	if connection_url, success := rtm_start_json["url"].(string); success {
 		// Connect via websocket
-		// TBD: Update localhost to be domain name
 		if ackley.slack_web_socket, err = websocket.Dial(connection_url, "", ackley.websocket_origin); err == nil {
 			glog.Infof("Connected!\n")
 			ackley.update_bot_presence()
-			go ackley.process_slack_message()
 			go ackley.process_pong_misses()
-			go ackley.process_slack_pong()
-			go ackley.process_slack_event_classification()
-
 			go ackley.read_from_slack_websocket()
 			go ackley.ping_slack_websocket()
 		} else {

@@ -88,6 +88,10 @@ func (ackley *Ackley) Start() {
 		go ackley.process_message_retransmissions()
 	}
 
+	go ackley.process_slack_pong()
+	go ackley.process_slack_message()
+	go ackley.process_slack_event_classification()
+
 	ackley.establish_connection()
 }
 

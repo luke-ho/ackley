@@ -30,7 +30,6 @@ func (ackley *Ackley) process_message_retransmissions() {
 		select {
 		case msg := <-ackley.message_retransmission_channel:
 			go func(AckleySlackRetransmission) {
-				// TBD: typing indicator?
 				glog.Infof("Sleeping for %v...\n", msg.Retrans_time)
 				time.Sleep(time.Second * time.Duration(msg.Retrans_time))
 				_, err := ackley.slack_web_socket.Write(msg.Message)

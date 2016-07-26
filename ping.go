@@ -44,7 +44,7 @@ func (ackley *Ackley) process_slack_pong() {
 				// Mismatch, flap the connection
 				glog.Errorf("Mismatch in pong processing:%v, flapping connection\n", reply_to)
 				ackley.flap_connection()
-				return
+				continue
 			}
 		}
 	}
