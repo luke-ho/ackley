@@ -81,7 +81,7 @@ type SlackMessageAttachment struct {
 	Title       string                        `json:"title"`
 	Title_link  string                        `json:"title_link"`
 	Text        string                        `json:"text"`
-	Fields      []SlackMessageAttachmentField `json:fields"`
+	Fields      []SlackMessageAttachmentField `json:"fields"`
 	Image_url   string                        `json:"image_url,omitempty"`
 	Thumb_url   string                        `json:"thumb_url,omitempty"`
 	Footer      string                        `json:"footer,omitempty"`
