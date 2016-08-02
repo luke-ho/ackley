@@ -97,16 +97,6 @@ type AckleyInit struct {
 	Interrupt_channel_resp              chan bool
 }
 
-type InspirationalQuotesRequest struct {
-	Type string // "GET", "ADD"
-	Val  string
-}
-
-type InspirationalQuotesResponse struct {
-	Type string // "OK", "FAIL"
-	Val  string
-}
-
 type SlackIm struct {
 	Id      string
 	User_id string

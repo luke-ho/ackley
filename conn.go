@@ -123,8 +123,6 @@ func (ackley *Ackley) process_slack_message() {
 				}
 			}
 			if user, ok := ackley.slack_user_id_to_user[responder_user_id]; ok {
-				// TBD: Send typing here.
-
 				ackley.send_typing_event(slack_response_channel)
 				current_ts := float64(time.Now().UTC().Unix())
 				slack_message_response := &SlackMessage{Type: "message", Channel: slack_response_channel, User: ackley_user_id, Ts: &current_ts}
@@ -164,7 +162,6 @@ func (ackley *Ackley) process_slack_message() {
 }
 
 func (ackley *Ackley) read_from_slack_websocket() {
-	// Keep reading from the websocket
 	for {
 		select {
 		case <-ackley.read_from_slack_websocket_return_channel:

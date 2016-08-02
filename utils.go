@@ -181,7 +181,7 @@ func (ackley *Ackley) randomly_disconnect() {
 }
 
 func (ackley *Ackley) make_default_response(info *SlackMessageInfo) ([]byte, error) {
-	text_response := fmt.Sprintf("Hi, %v!\n", info.User)
+	text_response := fmt.Sprintf("Hi, %v!\n", info.User.Name)
 
 	info.Msg.Text = text_response
 	response_bytes, err := json.Marshal(info.Msg)
