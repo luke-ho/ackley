@@ -50,6 +50,7 @@ type Ackley struct {
 
 	ackley_regexp           *regexp.Regexp
 	direct_message_regexp   *regexp.Regexp
+	cleaning                int32
 	cleanup_mutex           sync.Mutex
 	slack_ping_id_ack_mutex sync.Mutex
 	flap_connection_mutex   sync.Mutex

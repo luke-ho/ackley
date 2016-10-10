@@ -17,6 +17,7 @@ package ackley
 import (
 	"fmt"
 	"github.com/golang/glog"
+	"sync/atomic"
 	"time"
 )
 
@@ -34,10 +35,10 @@ func (ackley *Ackley) process_message_retransmissions() {
 				var err error
 				glog.Infof("Sleeping for %v...\n", msg.Retrans_time)
 				time.Sleep(time.Second * time.Duration(msg.Retrans_time))
-				if ackley.slack_web_socket != nil {
+				if atomic.LoadInt32(&ackley.cleaning) == 0 {
 					_, err = ackley.slack_web_socket.Write(msg.Message)
 				} else {
-					err = fmt.Errorf("slack web socket is nil, retry")
+					err = fmt.Errorf("ackley is cleaning, retry")
 				}
 				if err != nil || ackley.test_mode == true {
 					if err != nil {

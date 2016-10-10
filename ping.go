@@ -79,11 +79,11 @@ func (ackley *Ackley) ping_slack_websocket() {
 		ackley.slack_ping_id_ack[atomic.LoadInt64(&ackley.slack_ping_id)] = slack_ping.Time
 		ackley.slack_ping_id_ack_mutex.Unlock()
 		glog.Infof("Writing ping:%v\n", slack_ping)
-		if ackley.slack_web_socket != nil {
+		if atomic.LoadInt32(&ackley.cleaning) == 0 {
 			ackley.slack_web_socket.Write(slack_ping_bytes)
 			atomic.AddInt64(&ackley.slack_ping_id, 1)
 		} else {
-			glog.Infof("Skipping write as slack web socket is nil\n")
+			glog.Infof("Skipping write as ackley is cleaning\n")
 		}
 		if atomic.LoadInt64(&ackley.slack_ping_id) >= math.MaxInt64 {
 			glog.Infof("Resetting slack_ping_id...\n")

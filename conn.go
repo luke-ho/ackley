@@ -22,6 +22,7 @@ import (
 	"golang.org/x/net/websocket"
 	"io/ioutil"
 	"net/http"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
@@ -138,10 +139,10 @@ func (ackley *Ackley) process_slack_message() {
 					glog.Errorf("Callback returned nil response, ignoring...\n")
 					continue
 				}
-				if ackley.slack_web_socket != nil {
+				if atomic.LoadInt32(&ackley.cleaning) == 0 {
 					_, err = ackley.slack_web_socket.Write(slack_message_response_bytes)
 				} else {
-					err = fmt.Errorf("Slack web socket is nil")
+					err = fmt.Errorf("ackley is still cleaning")
 				}
 				if err != nil || ackley.test_mode == true {
 					if err != nil {
@@ -168,10 +169,10 @@ func (ackley *Ackley) read_from_slack_websocket() {
 			var num_bytes_read int
 			slack_websocket_nil := false
 			msg = make([]byte, MAX_SLACK_MESSAGE_SIZE)
-			if ackley.slack_web_socket != nil {
+			if atomic.LoadInt32(&ackley.cleaning) == 0 {
 				num_bytes_read, err = ackley.slack_web_socket.Read(msg)
 			} else {
-				err = fmt.Errorf("slack_web_socket is nil")
+				err = fmt.Errorf("ackley is still cleaning up")
 				slack_websocket_nil = true
 			}
 			if err != nil {
@@ -261,6 +262,7 @@ func (ackley *Ackley) establish_connection() {
 		// Connect via websocket
 		if ackley.slack_web_socket, err = websocket.Dial(connection_url, "", ackley.websocket_origin); err == nil {
 			glog.Infof("Connected!\n")
+			atomic.StoreInt32(&ackley.cleaning, 0)
 			ackley.update_bot_presence()
 		} else {
 			glog.Errorf("Error while trying to connect to websocket:%v\n", err)

@@ -19,6 +19,7 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"sync/atomic"
 	"time"
 )
 
@@ -65,6 +66,7 @@ func (ackley *Ackley) Init(ai *AckleyInit) {
 	}
 
 	ackley.message_response_handler = ai.Message_response_handler
+	atomic.StoreInt32(&ackley.cleaning, 1)
 
 	rand.Seed(time.Now().UTC().Unix())
 }

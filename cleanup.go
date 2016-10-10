@@ -23,6 +23,7 @@ import (
 
 func (ackley *Ackley) cleanup() {
 	ackley.cleanup_mutex.Lock()
+	atomic.StoreInt32(&ackley.cleaning, 1)
 	glog.Errorf("Cleaning up...\n")
 	if ackley.slack_web_socket != nil {
 		err := ackley.slack_web_socket.Close()
