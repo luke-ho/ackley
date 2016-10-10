@@ -25,9 +25,6 @@ import (
 func (ackley *Ackley) process_slack_pong() {
 	for {
 		select {
-		case <-ackley.process_slack_pong_return_channel:
-			glog.Errorf("Received request to return from processing pongs\n")
-			return
 		case slack_pong := <-ackley.slack_pong_processing_channel:
 			glog.Infof("Got a pong request from slack:%v\n", slack_pong)
 			reply_to, ok := slack_pong["reply_to"].(float64)
@@ -53,9 +50,6 @@ func (ackley *Ackley) process_slack_pong() {
 func (ackley *Ackley) process_pong_misses() {
 	for {
 		select {
-		case <-ackley.process_slack_pong_misses_return_channel:
-			glog.Errorf("Received request to return from processing pong misses:\n")
-			return
 		case <-time.After(time.Second * time.Duration(2)):
 			// Now check the size of the map
 			ackley.slack_ping_id_ack_mutex.Lock()
@@ -65,43 +59,42 @@ func (ackley *Ackley) process_pong_misses() {
 			if pings_remaining > MAX_SLACK_PINGS_UNANSWERED {
 				glog.Errorf("Flapping connection. Haven't heard back for %v pongs\n", MAX_SLACK_PINGS_UNANSWERED)
 				ackley.flap_connection()
-				return
+				continue
 			}
 		}
 	}
 }
 
 func (ackley *Ackley) ping_slack_websocket() {
-	// Keep pinging the socket
 	for {
-		select {
-		case <-ackley.ping_slack_websocket_return_channel:
-			glog.Errorf("Received request to return from pinging slack websocket\n")
-			return
-		default:
-			time.Sleep(time.Second * 1)
-			slack_ping := &SlackPing{Id: atomic.LoadInt64(&ackley.slack_ping_id), Type: "ping", Time: time.Now().UTC().Unix()}
-			slack_ping_bytes, err := json.Marshal(slack_ping)
-			if err != nil {
-				glog.Errorf("Error while trying to marshal slack_ping: %v\n", err)
-				ackley.flap_connection()
-				return
-			}
-			ackley.slack_ping_id_ack_mutex.Lock()
-			ackley.slack_ping_id_ack[atomic.LoadInt64(&ackley.slack_ping_id)] = slack_ping.Time
-			ackley.slack_ping_id_ack_mutex.Unlock()
-			glog.Infof("Writing ping:%v\n", slack_ping)
+		time.Sleep(time.Second * 1)
+		slack_ping := &SlackPing{Id: atomic.LoadInt64(&ackley.slack_ping_id), Type: "ping", Time: time.Now().UTC().Unix()}
+		slack_ping_bytes, err := json.Marshal(slack_ping)
+		if err != nil {
+			glog.Errorf("Error while trying to marshal slack_ping: %v\n", err)
+			ackley.flap_connection()
+			continue
+		}
+		ackley.slack_ping_id_ack_mutex.Lock()
+		ackley.slack_ping_id_ack[atomic.LoadInt64(&ackley.slack_ping_id)] = slack_ping.Time
+		ackley.slack_ping_id_ack_mutex.Unlock()
+		glog.Infof("Writing ping:%v\n", slack_ping)
+		if ackley.slack_web_socket != nil {
 			ackley.slack_web_socket.Write(slack_ping_bytes)
 			atomic.AddInt64(&ackley.slack_ping_id, 1)
-			if atomic.LoadInt64(&ackley.slack_ping_id) >= math.MaxInt64 {
-				glog.Infof("Resetting slack_ping_id...\n")
-				atomic.StoreInt64(&ackley.slack_ping_id, 0)
-			}
+		} else {
+			glog.Infof("Skipping write as slack web socket is nil\n")
+		}
+		if atomic.LoadInt64(&ackley.slack_ping_id) >= math.MaxInt64 {
+			glog.Infof("Resetting slack_ping_id...\n")
+			atomic.StoreInt64(&ackley.slack_ping_id, 0)
 		}
 	}
 }
 
 func (ackley *Ackley) reset_ping_processing() {
+	ackley.slack_ping_id_ack_mutex.Lock()
 	ackley.slack_ping_id_ack = make(map[int64]int64)
-	ackley.slack_ping_id = 1
+	ackley.slack_ping_id_ack_mutex.Unlock()
+	atomic.StoreInt64(&ackley.slack_ping_id, 1)
 }

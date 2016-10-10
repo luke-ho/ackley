@@ -61,13 +61,6 @@ type Ackley struct {
 	slack_message_processing_channel chan map[string]interface{}
 	slack_pong_processing_channel    chan map[string]interface{}
 
-	process_slack_event_classification_return_channel chan bool
-	process_slack_message_return_channel              chan bool
-	process_slack_pong_return_channel                 chan bool
-	process_slack_pong_misses_return_channel          chan bool
-	read_from_slack_websocket_return_channel          chan bool
-	ping_slack_websocket_return_channel               chan bool
-
 	slack_flap_connection_channel chan bool
 	slack_flapping_connection     bool
 	slack_num_conn_flapped        uint32

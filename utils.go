@@ -42,6 +42,7 @@ func (ackley *Ackley) update_bot_presence() {
 		glog.Errorf("Error while trying to read from presence response body:%v\n", err)
 		return
 	}
+	resp.Body.Close()
 	slack_response := &SlackResponse{}
 	err = json.Unmarshal(pres_resp_buf, slack_response)
 	if err != nil {

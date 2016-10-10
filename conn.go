@@ -29,9 +29,6 @@ import (
 func (ackley *Ackley) process_slack_event_classification() {
 	for {
 		select {
-		case <-ackley.process_slack_event_classification_return_channel:
-			glog.Errorf("Received request to return from processing slack event classification\n")
-			return
 		case slack_event := <-ackley.slack_event_classification_channel:
 			glog.Infof("Got slack event:%v\n", slack_event)
 			slack_message_type, ok := slack_event["type"].(string)
@@ -60,9 +57,6 @@ func (ackley *Ackley) process_slack_event_classification() {
 func (ackley *Ackley) process_slack_message() {
 	for {
 		select {
-		case <-ackley.process_slack_message_return_channel:
-			glog.Errorf("Received request to return from processing slack messages\n")
-			return
 		case slack_event := <-ackley.slack_message_processing_channel:
 			glog.Infof("Got a message from slack:%v\n", slack_event)
 			// Check the subtype
@@ -144,7 +138,11 @@ func (ackley *Ackley) process_slack_message() {
 					glog.Errorf("Callback returned nil response, ignoring...\n")
 					continue
 				}
-				_, err = ackley.slack_web_socket.Write(slack_message_response_bytes)
+				if ackley.slack_web_socket != nil {
+					_, err = ackley.slack_web_socket.Write(slack_message_response_bytes)
+				} else {
+					err = fmt.Errorf("Slack web socket is nil")
+				}
 				if err != nil || ackley.test_mode == true {
 					if err != nil {
 						glog.Errorf("Error while trying to write slack message response:%v.\n", err)
@@ -164,21 +162,26 @@ func (ackley *Ackley) process_slack_message() {
 func (ackley *Ackley) read_from_slack_websocket() {
 	for {
 		select {
-		case <-ackley.read_from_slack_websocket_return_channel:
-			glog.Errorf("Received request to return from reading from slack websocket\n")
-			return
 		default:
 			var msg []byte
+			var err error
+			var num_bytes_read int
+			slack_websocket_nil := false
 			msg = make([]byte, MAX_SLACK_MESSAGE_SIZE)
-			num_bytes_read, err := ackley.slack_web_socket.Read(msg)
+			if ackley.slack_web_socket != nil {
+				num_bytes_read, err = ackley.slack_web_socket.Read(msg)
+			} else {
+				err = fmt.Errorf("slack_web_socket is nil")
+				slack_websocket_nil = true
+			}
 			if err != nil {
 				if err.Error() != "EOF" {
-					glog.Errorf("Error while trying to read from websocket: %v\n", err)
-					ackley.flap_connection()
-					return
-				} else {
-					continue
+					if slack_websocket_nil == false {
+						glog.Errorf("Error while trying to read from websocket: %v\n", err)
+						ackley.flap_connection()
+					}
 				}
+				continue
 			}
 			// Remove extraneous bytes from msg
 			if num_bytes_read+1 < len(msg) {
@@ -191,7 +194,6 @@ func (ackley *Ackley) read_from_slack_websocket() {
 			if err != nil {
 				glog.Errorf("Error while trying to unmarshal slack event:%v\n", err)
 				ackley.flap_connection()
-				return
 			}
 
 			response, ok := slack_event["ok"].(bool)
@@ -200,14 +202,14 @@ func (ackley *Ackley) read_from_slack_websocket() {
 				continue
 			} else if !(ok == false && response == false) {
 				if ok == true && response == false {
-					glog.Fatalf("Something bad is happening. Exiting. response:%v, ok:%v\n", response, ok)
+					glog.Errorf("Something bad is happening. Exiting. response:%v, ok:%v\n", response, ok)
+					ackley.interrupt_channel <- syscall.SIGINT
 					return
 				} else {
 					glog.Errorf("Received ok response, but something's wrong.  Ignoring for now.  response:%v, ok:%v\n", response, ok)
 					continue
 				}
 			}
-
 			ackley.slack_event_classification_channel <- slack_event
 		}
 	}
@@ -260,9 +262,6 @@ func (ackley *Ackley) establish_connection() {
 		if ackley.slack_web_socket, err = websocket.Dial(connection_url, "", ackley.websocket_origin); err == nil {
 			glog.Infof("Connected!\n")
 			ackley.update_bot_presence()
-			go ackley.process_pong_misses()
-			go ackley.read_from_slack_websocket()
-			go ackley.ping_slack_websocket()
 		} else {
 			glog.Errorf("Error while trying to connect to websocket:%v\n", err)
 			ackley.flap_connection()

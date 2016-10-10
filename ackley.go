@@ -53,13 +53,6 @@ func (ackley *Ackley) Init(ai *AckleyInit) {
 	ackley.slack_pong_processing_channel = make(chan map[string]interface{}, MAX_BUFFERED_SLACK_EVENTS)
 	ackley.slack_flap_connection_channel = make(chan bool, 5)
 
-	ackley.process_slack_event_classification_return_channel = make(chan bool, 100)
-	ackley.process_slack_message_return_channel = make(chan bool, 100)
-	ackley.process_slack_pong_return_channel = make(chan bool, 100)
-	ackley.process_slack_pong_misses_return_channel = make(chan bool, 100)
-	ackley.read_from_slack_websocket_return_channel = make(chan bool, 100)
-	ackley.ping_slack_websocket_return_channel = make(chan bool, 100)
-
 	ackley.slack_flapping_connection = false
 	ackley.slack_num_conn_flapped = 0
 
@@ -88,9 +81,12 @@ func (ackley *Ackley) Start() {
 		go ackley.process_message_retransmissions()
 	}
 
+	go ackley.process_pong_misses()
 	go ackley.process_slack_pong()
 	go ackley.process_slack_message()
 	go ackley.process_slack_event_classification()
+	go ackley.ping_slack_websocket()
+	go ackley.read_from_slack_websocket()
 
 	ackley.establish_connection()
 }

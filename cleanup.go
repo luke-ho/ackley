@@ -29,6 +29,7 @@ func (ackley *Ackley) cleanup() {
 		if err != nil {
 			glog.Errorf("Error while trying to close websocket:%v\n", err)
 		}
+		ackley.slack_web_socket = nil
 	}
 	ackley.update_bot_presence()
 	glog.Flush()
@@ -41,10 +42,6 @@ func (ackley *Ackley) flap_connection() {
 		glog.Infof("Begin sending flapping connection:\n")
 		// Start flapping the connection
 		ackley.slack_flapping_connection = true
-		// Notify all return channels
-		ackley.process_slack_pong_misses_return_channel <- true
-		ackley.read_from_slack_websocket_return_channel <- true
-		ackley.ping_slack_websocket_return_channel <- true
 
 		ackley.slack_flap_connection_channel <- true
 		glog.Infof("End sending flapping connection:\n")
@@ -73,17 +70,6 @@ func (ackley *Ackley) process_flap_connections() {
 
 			// Flap connection
 			ackley.cleanup()
-
-			// Empty the return channels
-			for i := 0; i < len(ackley.process_slack_pong_misses_return_channel); {
-				<-ackley.process_slack_pong_misses_return_channel
-			}
-			for i := 0; i < len(ackley.read_from_slack_websocket_return_channel); {
-				<-ackley.read_from_slack_websocket_return_channel
-			}
-			for i := 0; i < len(ackley.ping_slack_websocket_return_channel); {
-				<-ackley.ping_slack_websocket_return_channel
-			}
 
 			// reset slack structures
 			ackley.slack_channels = make([]SlackChannel, 0)

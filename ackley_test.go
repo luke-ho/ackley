@@ -57,7 +57,7 @@ func Test1Retransmission(t *testing.T) {
 		slack_message_response := &SlackMessage{Type: "message", Channel: slack_response_channel, User: ackley_user_id, Text: text_response, Ts: &current_ts}
 		slack_message_response_bytes, err := json.Marshal(slack_message_response)
 		if err != nil {
-			t.Error("Error while trying to marshal json for slack message response:%v\n", err)
+			t.Errorf("Error while trying to marshal json for slack message response:%v\n", err)
 			return
 		}
 
@@ -76,20 +76,20 @@ func Test3UserListing(t *testing.T) {
 	if ack.start_web_server == true {
 		resp, err := http.Get("http://" + ack.web_server_address + "/api/v1/users")
 		if err != nil {
-			t.Error("Unable to get users: %v\n", err.Error())
+			t.Errorf("Unable to get users: %v\n", err.Error())
 			return
 		}
 		buf, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			t.Error("Unable to read body: %v\n", err.Error())
+			t.Errorf("Unable to read body: %v\n", err.Error())
 			return
 		}
 		if len(buf) <= 0 {
-			t.Error("Size of Users is < 0")
+			t.Errorf("Size of Users is < 0\n")
 			return
 		}
 		if resp.StatusCode != http.StatusOK {
-			t.Error("resp statusCode != OK: %v\n", resp.StatusCode)
+			t.Errorf("resp statusCode != OK: %v\n", resp.StatusCode)
 			return
 		}
 	}
@@ -99,20 +99,20 @@ func Test4ChannelsAPIEndpoint(t *testing.T) {
 	if ack.start_web_server == true {
 		resp, err := http.Get("http://" + ack.web_server_address + "/api/v1/channels")
 		if err != nil {
-			t.Error("Unable to get channels: %v\n", err.Error())
+			t.Errorf("Unable to get channels: %v\n", err.Error())
 			return
 		}
 		buf, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			t.Error("Unable to read body: %v\n", err.Error())
+			t.Errorf("Unable to read body: %v\n", err.Error())
 			return
 		}
 		if len(buf) <= 0 {
-			t.Error("Size of channels is < 0")
+			t.Errorf("Size of channels is < 0\n")
 			return
 		}
 		if resp.StatusCode != http.StatusOK {
-			t.Error("resp statusCode != OK: %v\n", resp.StatusCode)
+			t.Errorf("resp statusCode != OK: %v\n", resp.StatusCode)
 			return
 		}
 	}
@@ -122,20 +122,20 @@ func Test5IMsAPIEndpoint(t *testing.T) {
 	if ack.start_web_server == true {
 		resp, err := http.Get("http://" + ack.web_server_address + "/api/v1/ims")
 		if err != nil {
-			t.Error("Unable to get ims: %v\n", err.Error())
+			t.Errorf("Unable to get ims: %v\n", err.Error())
 			return
 		}
 		buf, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			t.Error("Unable to read body: %v\n", err.Error())
+			t.Errorf("Unable to read body: %v\n", err.Error())
 			return
 		}
 		if len(buf) <= 0 {
-			t.Error("Size of channels is < 0")
+			t.Errorf("Size of channels is < 0\n")
 			return
 		}
 		if resp.StatusCode != http.StatusOK {
-			t.Error("resp statusCode != OK: %v\n", resp.StatusCode)
+			t.Errorf("resp statusCode != OK: %v\n", resp.StatusCode)
 			return
 		}
 	}
