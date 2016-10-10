@@ -15,6 +15,7 @@
 package ackley
 
 import (
+	"fmt"
 	"github.com/golang/glog"
 	"time"
 )
@@ -30,9 +31,14 @@ func (ackley *Ackley) process_message_retransmissions() {
 		select {
 		case msg := <-ackley.message_retransmission_channel:
 			go func(AckleySlackRetransmission) {
+				var err error
 				glog.Infof("Sleeping for %v...\n", msg.Retrans_time)
 				time.Sleep(time.Second * time.Duration(msg.Retrans_time))
-				_, err := ackley.slack_web_socket.Write(msg.Message)
+				if ackley.slack_web_socket != nil {
+					_, err = ackley.slack_web_socket.Write(msg.Message)
+				} else {
+					err = fmt.Errorf("slack web socket is nil, retry")
+				}
 				if err != nil || ackley.test_mode == true {
 					if err != nil {
 						glog.Errorf("Error while trying to write slack message response:%v, Message:%v.\n", err, string(msg.Message))
