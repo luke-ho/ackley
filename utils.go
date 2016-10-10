@@ -197,7 +197,11 @@ func (ackley *Ackley) send_typing_event(channel string) {
 	if err != nil {
 		glog.Errorf("Error while trying to Marshal typing event (%v):%v\n", ste, err.Error())
 	}
-	_, err = ackley.slack_web_socket.Write(ste_bytes)
+	if ackley.slack_web_socket != nil {
+		_, err = ackley.slack_web_socket.Write(ste_bytes)
+	} else {
+		err = fmt.Errorf("Unable to send typing event as slack web socket is nil")
+	}
 	if err != nil {
 		glog.Errorf("Error while writing to web socket(%v):%v\n", string(ste_bytes), err.Error())
 	}
