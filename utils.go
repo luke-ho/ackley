@@ -22,6 +22,7 @@ import (
 	"math/rand"
 	"net/http"
 	"reflect"
+	"sync/atomic"
 	"time"
 )
 
@@ -197,10 +198,10 @@ func (ackley *Ackley) send_typing_event(channel string) {
 	if err != nil {
 		glog.Errorf("Error while trying to Marshal typing event (%v):%v\n", ste, err.Error())
 	}
-	if ackley.slack_web_socket != nil {
+	if atomic.LoadInt32(&ackley.cleaning) == 0 {
 		_, err = ackley.slack_web_socket.Write(ste_bytes)
 	} else {
-		err = fmt.Errorf("Unable to send typing event as slack web socket is nil")
+		err = fmt.Errorf("Unable to send typing event as ackley is cleaning up.")
 	}
 	if err != nil {
 		glog.Errorf("Error while writing to web socket(%v):%v\n", string(ste_bytes), err.Error())
