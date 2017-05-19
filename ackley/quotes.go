@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -86,6 +87,26 @@ func AddQuotes(url string) {
 				if token_depth > 0 {
 					token_depth = token_depth - 1
 					if token_depth <= 0 {
+						current_quote_split := strings.Split(current_quote, "\n")
+						current_quote = ""
+						line_count := 0
+						// Grab first two lines from text
+						for _, line := range current_quote_split {
+							if line_count >= 2 {
+								break
+							}
+							if len(line) > 0 {
+								current_quote += line + "\n"
+								line_count++
+							}
+						}
+
+						// Reformat current quote
+						current_quote_split = strings.Split(current_quote, "\n")
+						if len(current_quote_split) == 3 {
+							current_quote = current_quote_split[0] + " -- " + current_quote_split[1]
+						}
+
 						glog.Infof("Appending quote to quotes: (%v)\n", current_quote)
 
 						iqr := InspirationalQuotesRequest{Type: "ADD", Val: current_quote}
@@ -104,12 +125,8 @@ func AddQuotes(url string) {
 			switch {
 			case token.Data == "div":
 				for _, tokenAttr := range token.Attr {
-					//fmt.Printf("Key: %v, Value:%v\n", tokenAttr.Key, tokenAttr.Val)
-					if tokenAttr.Key == "class" && tokenAttr.Val == "tlod masonry-brick" {
-						glog.Infof("Token depth:%v\n", token_depth)
-						token_depth = token_depth + 1
-						ignore = 1
-					} else if ignore == 0 && tokenAttr.Key == "class" && tokenAttr.Val == "boxyPaddingBig" {
+					//if tokenAttr.Key == "class" && tokenAttr.Val == "tlod masonry-brick" {
+					if tokenAttr.Key == "class" && tokenAttr.Val == "m-brick grid-item boxy bqQt" {
 						glog.Infof("Token depth:%v\n", token_depth)
 						token_depth = token_depth + 1
 					}
