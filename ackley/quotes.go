@@ -72,74 +72,42 @@ func AddQuotes(url string) {
 
 	t := html.NewTokenizer(reader)
 	current_quote := ""
-	ignore := 0
-
-	token_depth := 0
+	quote_found := false
+	quote_author_found := false
 	for {
 		token_type := t.Next()
 		switch {
 		case token_type == html.ErrorToken:
 			glog.Infof("Error: Got an Error Token:%v\n", t.Err())
 			return
-		case token_type == html.EndTagToken:
-			token := t.Token()
-			if token.Data == "div" {
-				if token_depth > 0 {
-					token_depth = token_depth - 1
-					if token_depth <= 0 {
-						current_quote_split := strings.Split(current_quote, "\n")
-						current_quote = ""
-						line_count := 0
-						// Grab first two lines from text
-						for _, line := range current_quote_split {
-							if line_count >= 2 {
-								break
-							}
-							if len(line) > 0 {
-								current_quote += line + "\n"
-								line_count++
-							}
-						}
-
-						// Reformat current quote
-						current_quote_split = strings.Split(current_quote, "\n")
-						if len(current_quote_split) == 3 {
-							current_quote = current_quote_split[0] + " -- " + current_quote_split[1]
-						}
-
-						glog.Infof("Appending quote to quotes: (%v)\n", current_quote)
-
-						iqr := InspirationalQuotesRequest{Type: "ADD", Val: current_quote}
-						inspirational_quotes_req_channel <- iqr
-						<-inspirational_quotes_resp_channel
-
-						current_quote = ""
-						token_depth = 0
-						// Reset ignore on each current quote append
-						ignore = 0
-					}
-				}
-			}
 		case token_type == html.StartTagToken:
 			token := t.Token()
 			switch {
-			case token.Data == "div":
+			case token.Data == "a":
 				for _, tokenAttr := range token.Attr {
-					//if tokenAttr.Key == "class" && tokenAttr.Val == "tlod masonry-brick" {
-					if tokenAttr.Key == "class" && tokenAttr.Val == "m-brick grid-item boxy bqQt" {
-						glog.Infof("Token depth:%v\n", token_depth)
-						token_depth = token_depth + 1
+					//fmt.Printf("Key: %v, Value:%v\n", tokenAttr.Key, tokenAttr.Val)
+					if tokenAttr.Key == "class" && strings.Contains(tokenAttr.Val, "b-qt") {
+						quote_found = true
+					} else if tokenAttr.Key == "class" && strings.Contains(tokenAttr.Val, "bq-aut") {
+						quote_author_found = true
 					}
 				}
 			}
-
 		case token_type == html.TextToken:
-			if ignore == 0 && token_depth > 0 {
-				text := string(t.Text())
-				if len(text) > 0 {
-					current_quote += text
-				}
+			if quote_found {
+				current_quote = string(t.Text())
+				quote_found = false
 			}
+
+			if quote_author_found {
+				current_quote += " -- " + string(t.Text())
+				quote_author_found = false
+				glog.Infof("Appending quote to quotes: (%v)\n", current_quote)
+				iqr := InspirationalQuotesRequest{Type: "ADD", Val: current_quote}
+				inspirational_quotes_req_channel <- iqr
+				<-inspirational_quotes_resp_channel
+			}
+
 		}
 	}
 }
